@@ -2,13 +2,7 @@
 
 import tkinter             #tkinter:GUI
 
-#windiw
-root = tkinter.Tk()        # make window
-root.geometry("576x480")  # window Size
 
-#canvas
-canvas = tkinter.Canvas(root, width=576, height=480)
-canvas.pack()
 
 #define
 FONTSIZE = ("",24)
@@ -96,7 +90,7 @@ def drawpiece(pos, num):
         d = int(CELLSIZE /10)
         canvas.create_oval(xa + d, ya + d, xb - d, yb - d, fill=colortbl[num], width=2)
 
-
+'''
 for y in range(BOADDW):
         for x in range(BOADDW):
                 drawpiece((x,y),getpiece((x,y)))
@@ -104,7 +98,7 @@ for y in range(BOADDW):
 piece = serch((3,3),2,TYPE_BLACK)
 msg = "Result:" + str(piece)
 canvas.create_text(288,456,text=msg,font=FONTSIZE)
-
+'''
 
 '''
 def drawrect(pos,color):
@@ -119,7 +113,7 @@ def drawrect(pos,color):
 def canvas_click(event):
         xa = event.x - OFSX
         ya = event.y - OFSY
-        pos = (x,y)
+        pos = (xa,ya)
 
         if endflag == True:
                 initboard()
@@ -127,20 +121,84 @@ def canvas_click(event):
 
         if passcnt >0:
                 nextturn()
-                redoraw()
+                redraw()
                 return
 
-        if isinside(pos)
+        if isinside(pos)==False:
+                return
+        if turnnablepiece(pos, turn)==0:
+                return
+        for vectol in range(8):
+                loopcount = serch(pos,vectol,turn)
+                temppos = pos
+                for vectol in range(loopcount):
+                        temppos = moveposition(temppos, vectol)
+                        setpiece(temppos, turn)
 
+        setpiece(pos,turn)
+        nextturn()
+        redraw()
 
+def nextturn():
+        global passcnt, endflag, turn
+        turn ^= 1
+        empty = 0
+        for y in range(BOADDW):
+                for x in range(BOADDW):
+                        if getpiece((x,y)) == TYPE_NONE: empty+=1
+                        if turnnablepiece((x,y),turn)>0:
+                                passcnt=0
+                                return
 
+        if empty == 0:
+                endflag=True
+                return
+
+        passcnt += 1
+        if passcnt >=2:
+                endflag = True
+
+def turnnablepiece(pos,num):
+        if getpiece(pos) != TYPE_NONE:
+                return 0
+
+        total = 0
+        for vectol in range(8):
+                total+=serch(pos,vectol,num)
+        return total
+
+def redraw():
+        canvas.create_rectangle(0,0,576,480,fill="Khaki")
+        black=0
+        white=0
+
+        for y in range(BOADDW):
+                for x in range(BOADDW):
+                        pos = (x,y)
+                        num = getpiece(pos)
+                        if num == TYPE_BLACK: black+=1
+                        if num == TYPE_WHITE: white+=1
+                        drawpiece(pos,turn)
+                        #assist(pos,turn)
+        msg = "黒"+str(black) + "　対　白" + str(white)
+        canvas.create_text(288, 456, text=msg, font=FONTSIZE)
+        msg = prayertbl[turn]+"の番です"
+        if passcnt>0:
+                msg += "(パス)"
+
+        if endflag == True:
+                msg = "終了です"
+
+        canvas.create_text(288, 24, text=msg, font=FONTSIZE)
+
+'''
         canvas.create_rectangle(xa,ya,xb,yb,fill='Green',width=2)
         d = int(CELLSIZE / 10)
         canvas.create_oval(xa+d, ya+d, xb-d, yb-d, fill='White', width=2)
 
 
 #canvas.bind("<Button-1>", canvas_click)
-'''
+
 startpos = (5,5)
 drawrect(startpos, 'Red')
 for vec in range(8):
@@ -150,5 +208,15 @@ for vec in range(8):
                 drawrect(temppos, 'Cyan')
 
 '''
+#windiw
+root = tkinter.Tk()        # make window
+root.geometry("576x480")  # window Size
+root.title("Reversi")
+
+#canvas
+canvas = tkinter.Canvas(root, width=576, height=480)
+canvas.pack()
+canvas.bind("<Button-1>",canvas_click)
+initboard()
 
 root.mainloop()           #show window
