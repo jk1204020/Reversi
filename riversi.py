@@ -150,7 +150,6 @@ def drawpiece(pos, num):
         if num == TYPE_NONE: return
         d = int(CELLSIZE /10)
         canvas.create_oval(xa+d, ya+d, xb-d, yb-d, fill=colortbl[num], width=2)
-#        canvas.create_oval(xa+d, ya+d, xb-d, yb-d, fill='Blue', width=2)
 
 def redraw():
         #外枠
@@ -165,7 +164,7 @@ def redraw():
                         if num == TYPE_BLACK: black+=1
                         if num == TYPE_WHITE: white+=1
                         drawpiece(pos,num)
-                        #assist(pos,turn)
+                        assist(pos,turn)
         msg = "黒"+str(black) + "　対　白" + str(white)
         canvas.create_text(288, 456, text=msg, font=FONTSIZE)
         msg = prayertbl[turn]+"の番です"
@@ -175,6 +174,13 @@ def redraw():
                 msg = "終了です"
 
         canvas.create_text(288, 24, text=msg, font=FONTSIZE)
+
+def assist(pos, num2):
+        piece = turnnablepiece(pos, num2)
+        if piece == 0:return
+        x = pos[0] * CELLSIZE + OFSX + int(CELLSIZE / 2)
+        y = pos[1] * CELLSIZE + OFSY + int(CELLSIZE / 2)
+        canvas.create_text(x, y, text=str(piece), font=FONTSIZE, fill='Yellow')
 
 #windiw
 root = tkinter.Tk()        # make window
